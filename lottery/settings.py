@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sites',
+
+    'rest_auth',
+    'rest_framework.authtoken',
+    'rest_framework',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

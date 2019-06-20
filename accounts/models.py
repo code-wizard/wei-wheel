@@ -4,9 +4,35 @@ from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 from django.utils import timezone
+from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
 
 
-class LtUser(AbstractBaseUser):
+class MyUserManager(BaseUserManager):
+    def create_user(self, email, password=None):
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(
+            email=self.normalize_email(email), username=self.normalize_email(email)
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        SuperUser = self.create_user(
+            email,
+            password=password,
+        )
+        SuperUser.is_staff = True
+        SuperUser.is_superuser = True
+        SuperUser.save(using=self._db)
+        return SuperUser
+
+
+class LtUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     email = models.EmailField(_('email address'), max_length=254, unique=True, db_index=True)
@@ -15,10 +41,17 @@ class LtUser(AbstractBaseUser):
     is_staff = models.BooleanField(_('staff status'), default=False,
                                    help_text=_('Designates whether the user can log into this admin '
                                                'site.'))
+
+    is_superuser = models.BooleanField(_('super status'), default=False,
+                                       help_text=_('Designates whether the user can log into this admin '
+                                                   'site.'))
+
     is_active = models.BooleanField(_('active'), default=True,
                                     help_text=_('Designates whether this user should be treated as '
                                                 'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
+    objects = MyUserManager()
 
     class Meta:
         verbose_name = _('User')
@@ -41,4 +74,3 @@ class LtUserProfile(models.Model):
     class Meta:
         verbose_name = _("User Profile")
         db_table = "lt_user_profile"
-

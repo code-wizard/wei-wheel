@@ -1,7 +1,10 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
+from accounts import api
 
 app_name = "accounts"
 
 urlpatterns = [
-    path("/", include('allauth.urls'))
+    path('rest-auth/', include('rest_auth.urls')),
+    path('signup/', api.LtRegisterView.as_view())
 ]
+
