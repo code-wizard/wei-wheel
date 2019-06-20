@@ -5,8 +5,14 @@ from django.utils.translation import ugettext_lazy as _
 
 User = get_user_model()
 
+class LtCommonField(models.Model):
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
 
-class LtLotteryCategory(models.Model):
+    class Meta:
+        abstract = True
+
+class LtLotteryCategory(LtCommonField):
     amount = models.PositiveIntegerField(default=0)
     name = models.CharField(max_length=255)
     max_winning_amount = models.PositiveIntegerField()
@@ -16,7 +22,7 @@ class LtLotteryCategory(models.Model):
         verbose_name = "Lottery Category"
 
 
-class LtLottery(models.Model):
+class LtLottery(LtCommonField):
     # STATUS = (("yt", "Yet to start"), ("ip", "In Progress"), ("fn", "Finished"))
     category = models.ForeignKey(LtLotteryCategory, related_name="category_lottery", null=True,
                                  on_delete=models.SET_NULL)
@@ -30,7 +36,7 @@ class LtLottery(models.Model):
         verbose_name_plural = "Lotteries"
 
 
-class LtLotteryPlayers(models.Model):
+class LtLotteryPlayers(LtCommonField):
     lottery = models.ForeignKey(LtLottery, related_name="lottery_players", on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, related_name="played_lotteries", on_delete=models.SET_NULL, null=True)
     joined_at = models.DateTimeField(auto_now=True)
@@ -41,18 +47,16 @@ class LtLotteryPlayers(models.Model):
         verbose_name = "Lottery Players"
 
 
-class LtCredit(models.Model):
+class LtCredit(LtCommonField):
     user = models.ForeignKey(User, related_name="my_credit", on_delete=models.SET_NULL, null=True)
     credit = models.PositiveIntegerField()
-    updated_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(User, related_name="updated_credits", on_delete=models.SET_NULL, null=True)
 
 
-class LtCreditHistory(models.Model):
+class LtCreditHistory(LtCommonField):
     user = models.ForeignKey(User, related_name="my_credit_history", on_delete=models.SET_NULL, null=True)
     mode_of_payment = models.CharField(max_length=255)
     amount = models.PositiveIntegerField()
-    created_at = models.DateTimeField(auto_now=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+
 
 
